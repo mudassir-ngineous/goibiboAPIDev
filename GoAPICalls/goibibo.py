@@ -11,7 +11,7 @@ def getFormattedText(string):
     return string.replace("\n","").replace("\r","").replace("\"","").strip()
 
 home = os.getenv("HOME")
-csv_file_path = home + "/goibibo/GoAPICalls/city_list.csv"
+csv_file_path = home + "/goibiboAPIDev/GoAPICalls/city_list.csv"
 fp = open(csv_file_path,"r")
 lines = fp.readlines()
 hotel_cities = {}
