@@ -79,6 +79,7 @@ def getFlightsResp(source,destination,date,return_date):
             "source":source_iata,
             "destination":destination_iata,
             "dateofdeparture":date,
+            "seatingclass":"E",
             "adults":1,
             "children":0,
             "infants":0
@@ -89,14 +90,121 @@ def getFlightsResp(source,destination,date,return_date):
         resp_data = resp.json().get('data')
         onward_flights_resp = resp_data['onwardflights']
         return_flights_resp = resp_data['returnflights']
-        if(onward_flights_resp.length > 0):
-            pass
 
-        if(return_flights_resp.length > 0):
-            pass
+        onward_flights = []
+        return_flights = []
+        if(len(onward_flights_resp) > 0):
+            for flight in onward_flights_resp:
+                onward_flights.append(getFlightObj(flight))
 
-def getBusesResp(source,destination,data,return_date):
-    pass
+        if(len(return_flights_resp) > 0):
+            for flight in return_flights_resp:
+                return_flights.append(getFlightObj(flight))
+
+        return {
+            'onward':onward_flights,
+            'return':return_flights
+        }
+
+def getBusesResp(source,destination,date,return_date):
+    flag = 0;
+    for city_key in BusCity:
+
+        if(city_key.lower() == source.lower()):
+            source = BusCity[city_key]
+            flag = flag | 1
+
+        if(city_key.lower() == destination.lower()):
+            destination = BusCity[city_key]
+            flag = flag | 2
+
+        if(flag == 3):
+            break
+
+    url = config['goibibo']['urls']['base_url'] + config['goibibo']['urls']['bus_search']
+    data = {
+            "app_id" : config['goibibo']['app_id'],
+            "app_key": config['goibibo']['app_key'],
+            "format": "json",
+            "source":source,
+            "destination":destination,
+            "dateofdeparture":date,
+        }
+    if(return_date):
+        data['dateofarrival'] = return_date
+
+    resp = requests.get(url,params=data)
+
+    resp_data = resp.json().get('data')
+    onward_flights_resp = resp_data['onwardflights']
+    return_flights_resp = resp_data['returnflights']
+
+    onward_flights = []
+    return_flights = []
+    if(len(onward_flights_resp) > 0):
+        for flight in onward_flights_resp:
+            onward_flights.append(getBusObj(flight))
+
+    if(len(return_flights_resp) > 0):
+        for flight in return_flights_resp:
+            return_flights.append(getBusObj(flight))
+
+    return {
+            'onward':onward_flights,
+            'return':return_flights
+        }
+
+def getBusObj(flight):
+    flight_obj = {}
+    if('TravelsName' in flight):
+        flight_obj['bus_name'] = flight['TravelsName']
+
+    if('fare' in flight and 'totalfare' in flight['fare']):
+        flight_obj['fare'] = flight['fare']['totalfare']
+
+    if('DepartureTime' in flight):
+        flight_obj['departure_time'] = flight['DepartureTime']
+
+    if('ArrivalTime' in flight):
+        flight_obj['arrival_time'] = flight['ArrivalTime']
+
+    if('duration' in flight):
+        flight_obj['duration'] = flight['duration']
+
+    if('busCondition' in flight):
+        flight_obj['bus_condition'] = flight['busCondition']
+
+    if('BusType' in flight):
+        flight_obj['type'] = flight['BusType']
+
+    if('BPPrims' in flight):
+        flight_obj['boarding_points'] = flight['BPPrims']
+
+    if('DPPrims' in flight):
+        flight_obj['drop_points'] = flight['DPPrims']
+
+    return flight_obj
+
+def getFlightObj(flight):
+    flight_obj = {}
+    if('airline' in flight):
+        flight_obj['airline'] = flight['airline']
+    if('fare' in flight and 'totalfare' in flight['fare']):
+        flight_obj['fare'] = flight['fare']['totalfare']
+
+    if('DepartureTime' in flight):
+        flight_obj['departure_time'] = flight['DepartureTime']
+
+    if('ArrivalTime' in flight):
+        flight_obj['arrival_time'] = flight['ArrivalTime']
+
+    if('duration' in flight):
+        flight_obj['duration'] = flight['duration']
+
+    if('stops' in flight):
+        flight_obj['stops'] = flight['stops']
+
+    return flight_obj
 
 def giveCommonResponse(source,destination,data,return_date=None):
     return {
@@ -104,5 +212,3 @@ def giveCommonResponse(source,destination,data,return_date=None):
         "buses": getBusesResp(source,destination,data,return_date),
         "hotels": getHotelResp(destination)
     }
-
-getFlightsResp('pune','new delhi','20151101','20151102')
