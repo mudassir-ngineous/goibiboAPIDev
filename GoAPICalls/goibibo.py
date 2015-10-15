@@ -1,4 +1,5 @@
 import sys
+import os
 import requests
 
 sys.path.append("../")
@@ -9,7 +10,9 @@ from Configs.IATADatabase import iata_dicts
 def getFormattedText(string):
     return string.replace("\n","").replace("\r","").replace("\"","").strip()
 
-fp = open("/home/mudassir/goibibo/GoAPICalls/city_list.csv")
+home = os.getenv("HOME")
+csv_file_path = home + "/goibibo/GoAPICalls/city_list.csv"
+fp = open(csv_file_path,"r")
 lines = fp.readlines()
 hotel_cities = {}
 for line in lines:
