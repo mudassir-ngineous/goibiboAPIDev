@@ -27,8 +27,10 @@ for line in lines:
     hotel_cities[id]['domestic_flag'] = int(getFormattedText(line.split(",")[2]))
 
 def getHotelResp(city):
+    print "getting hotels"
     target_city_id = None
     for id in hotel_cities:
+        print hotel_cities[id]['city_name']
         if(hotel_cities[id]['city_name'].lower() == city.lower()):
             target_city_id = id
 
@@ -41,24 +43,25 @@ def getHotelResp(city):
     resp = requests.get(url,params=data)
     resp_data = resp.json().get('data')
     hotels = []
-    for key in resp_data:
-        hotel = {}
-        hotel_geo_node = resp_data[key]['hotel_geo_node']
-        hotel_data_node = resp_data[key]['hotel_data_node']
+    if resp_data:
+        for key in resp_data:
+            hotel = {}
+            hotel_geo_node = resp_data[key]['hotel_geo_node']
+            hotel_data_node = resp_data[key]['hotel_data_node']
 
-        hotel['id'] = hotel_geo_node['_id']
-        hotel['name'] = hotel_data_node['name']
-        hotel['location'] = hotel_geo_node['location']
-        if('property_budget_category' in hotel_geo_node['tags'] ):
-            hotel['category'] = hotel_geo_node['tags']['property_budget_category']
+            hotel['id'] = hotel_geo_node['_id']
+            hotel['name'] = hotel_data_node['name']
+            hotel['location'] = hotel_geo_node['location']
+            if('property_budget_category' in hotel_geo_node['tags'] ):
+                hotel['category'] = hotel_geo_node['tags']['property_budget_category']
 
-        if('gir_data' in hotel_data_node['extra'] and  'hotel_rating' in hotel_data_node['extra']['gir_data']):
-            hotel['rating'] = hotel_data_node['extra']['gir_data']['hotel_rating']
-        hotel['facilities'] = hotel_data_node['facilities']
+            if('gir_data' in hotel_data_node['extra'] and  'hotel_rating' in hotel_data_node['extra']['gir_data']):
+                hotel['rating'] = hotel_data_node['extra']['gir_data']['hotel_rating']
+            hotel['facilities'] = hotel_data_node['facilities']
 
-        if('pin' in hotel_data_node['loc']):
-            hotel['pincode'] = hotel_data_node['loc']['pin']
-        hotels.append(hotel)
+            if('pin' in hotel_data_node['loc']):
+                hotel['pincode'] = hotel_data_node['loc']['pin']
+            hotels.append(hotel)
 
     return hotels
 
