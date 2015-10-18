@@ -29,6 +29,7 @@ def details():
     source = getFormattedText(request.args.get('source'))
     destination = getFormattedText(request.args.get('destination'))
     date = getFormattedText(request.args.get('date'))
+    print source,destination,date
     if request.args.get('return_date'):
         return_date = getFormattedText(request.args.get('return_date'))
 
