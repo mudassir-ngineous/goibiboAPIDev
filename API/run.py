@@ -49,6 +49,6 @@ def details():
 
 if __name__ == "__main__":
     app.debug = True
-    app.run(use_debugger=True,host='0.0.0.0',port=8282)
+    app.run(threaded=True,use_debugger=True,host='0.0.0.0',port=8282)
 
 
